@@ -21,12 +21,12 @@ Forte AI Tender Intelligence — это система для интеллект
 - подготовка данных для LLM анализа
 
 ## Парсер & Данные
-goszakup_tenders_full_async.csv - это первоначальный спарсенный датасет
-tender_risk_model.pkl - это модель с комплаенсом и статистическим анализом
-df_with_risk.csv - это датасет который прошел через модель, с окончательными результатами
-service in jupyter.ipynb - это аналитический документ где я проводил анализ
-service_in_jupyter.py - это сервис
-ai_procure_parser.py - это разработанный парсер
+- goszakup_tenders_full_async.csv - это первоначальный спарсенный датасет
+- tender_risk_model.pkl - это модель с комплаенсом и статистическим анализом
+- df_with_risk.csv - это датасет который прошел через модель, с окончательными результатами
+- service in jupyter.ipynb - это аналитический документ где я проводил анализ
+- service_in_jupyter.py - это сервис
+- ai_procure_parser.py - это разработанный парсер
 
 ---
 
