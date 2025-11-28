@@ -1,0 +1,372 @@
+.results {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid var(--border-color);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+  min-height: 420px;
+  display: flex;
+  flex-direction: column;
+}
+
+.results__header {
+  margin-bottom: 10px;
+}
+
+.results__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.results__subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.results__empty {
+  flex: 1;
+  border-radius: 12px;
+  border: 1px dashed #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+.results__empty--error {
+  color: #b91c1c;
+  border-color: #fecaca;
+  background: #fef2f2;
+}
+
+/* Список карточек */
+
+.results-list {
+  margin-top: 8px;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  background: #f9fafb;
+}
+
+.tender-card {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) 64px;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.tender-card:last-of-type {
+  border-bottom: none;
+}
+
+.tender-card:hover {
+  background: #f9fafb;
+}
+
+/* Левая колонка: дни + способ */
+
+.tender-card__left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tender-card__days {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tender-card__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.tender-card__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+/* Центр: основная информация */
+
+.tender-card__main {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tender-card__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tender-card__title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tender-card__meta {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+
+.tender-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.tender-card__title--link {
+  text-decoration: none;
+}
+
+.tender-card__title--link:hover {
+  text-decoration: underline;
+}
+
+.tender-card__amount-block {
+  text-align: right;
+  min-width: 140px;
+}
+
+.tender-card__amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.tender-card__deadline {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.tender-card__org {
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.tender-card__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  font-size: 11px;
+  color: #374151;
+}
+
+.chip--status {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+
+.chip--muted {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+/* Правая колонка: иконки */
+
+.tender-card__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 8px;
+}
+
+.icon-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 120ms ease, box-shadow 120ms ease;
+}
+
+.icon-button:hover {
+  background: #f3f4f6;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.4);
+}
+
+/* Footer: "Показано 1–20..." + пагинация */
+
+.results__footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.results__shown {
+  font-size: 12px;
+}
+
+/* Пагинация */
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.pagination__button {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease, box-shadow 120ms ease;
+}
+
+.pagination__button:hover:not(.pagination__button--active) {
+  background: #f3f4f6;
+}
+
+.pagination__button--active {
+  background: #111827;
+  color: #ffffff;
+  border-color: #111827;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.35);
+}
+
+.pagination__button:disabled {
+  cursor: default;
+}
+
+.pagination__dots {
+  padding: 0 4px;
+  color: #9ca3af;
+}
+
+/* Адаптив */
+
+@media (max-width: 900px) {
+  .tender-card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tender-card__left {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .tender-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tender-card__amount-block {
+    text-align: left;
+  }
+
+  .tender-card__right {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .results__footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+}
+
+.tender-card__org-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.tender-card__email {
+  font-size: 12px;
+  color: #2563eb;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.tender-card__email:hover {
+  text-decoration: underline;
+}
+
+.tender-card__link-row {
+  margin-top: 6px;
+}
+
+.tender-card__link {
+  font-size: 12px;
+  color: #2563eb;
+  text-decoration: none;
+}
+
+.tender-card__link:hover {
+  text-decoration: underline;
+}
+
+/* Row: link + AI button */
+.tender-card__link-row {
+  margin-top: 6px;          /* ← хочешь увеличить — меняй */
+  display: flex;
+  align-items: center;
+  gap: 12px;                /* ← расстояние между кнопками */
+}
+
+/* AI Analysis button */
+.ai-analysis-btn {
+  padding: 6px 14px;        /* ← регулируй размер кнопки */
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.ai-analysis-btn:hover {
+  background: #1f2937;
+  transform: translateY(-1px);
+}
+
+/* адаптив — чтобы email не ломал строку на мобилке */
+@media (max-width: 900px) {
+  .tender-card__org-line {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

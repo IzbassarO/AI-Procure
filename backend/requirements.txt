@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+pydantic
+motor
+python-dotenv
+pandas
+httpx
+#pymorphy3
+#sentence_transformers
+#rank_bm25
+#numpy
