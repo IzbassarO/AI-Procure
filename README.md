@@ -122,6 +122,11 @@ v
 LLM Server (Groq / OpenAI API)
 
 ---
+## Demo
+
+- Ссылка: https://drive.google.com/drive/folders/1YEYdwb6x9sGNOD85Hs2aOkwNhhJnLFUK?usp=sharing
+
+---
 
 ## Запуск проекта
 
