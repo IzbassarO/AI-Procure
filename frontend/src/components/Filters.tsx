@@ -10,7 +10,6 @@ import {
 import { MultiSelect } from "./filters/MultiSelect";
 import { ChipsFilter } from "./filters/ChipsFilter";
 
-/** Тип фильтров, которые уйдут в App + бэк */
 export interface UiFilters {
   keywords: string;
   subjectTypes: string[];
@@ -33,7 +32,6 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
   const [selectedPurchaseTypes, setSelectedPurchaseTypes] = useState<string[]>(
     []
   );
-  // Теперь методы – это чипсы, а не dropdown
   const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [amountSort, setAmountSort] = useState<"" | "asc" | "desc">("");
@@ -69,6 +67,25 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
     });
   };
 
+  const SORT_LABELS: Record<"" | "asc" | "desc", string[]> = {
+    "": [],
+    asc: ["По возрастанию"],
+    desc: ["По убыванию"],
+  };
+
+  const handleAmountSortChange = (selectedLabels: string[]) => {
+    const hasAsc = selectedLabels.includes("По возрастанию");
+    const hasDesc = selectedLabels.includes("По убыванию");
+
+    let value: "" | "asc" | "desc" = "";
+
+    if (hasAsc && !hasDesc) value = "asc";
+    else if (!hasAsc && hasDesc) value = "desc";
+    else value = "";
+
+    setAmountSort(value);
+  };
+
   return (
     <aside className="filters">
       <div className="filters__card">
@@ -81,7 +98,7 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
 
         <p className="filters__subtitle">Уточните поиск по параметрам</p>
 
-        {/* Ключевые слова */}
+        {/* 1. Ключевые слова */}
         <div className="field">
           <span className="field__label">Ключевые слова</span>
           <input
@@ -92,7 +109,15 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
           />
         </div>
 
-        {/* Виды предмета закупок */}
+        {/* 2. Тип закупки */}
+        <ChipsFilter
+          label="Тип закупки"
+          options={PURCHASE_TYPES}
+          selected={selectedPurchaseTypes}
+          onChange={setSelectedPurchaseTypes}
+        />
+
+        {/* 3. Вид предмета закупок */}
         <MultiSelect
           label="Вид предмета закупок"
           placeholder="Любой"
@@ -101,24 +126,16 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
           onChange={setSelectedSubjectTypes}
         />
 
-        {/* Типы закупок */}
+        {/* 4. Способ проведения закупки */}
         <MultiSelect
-          label="Тип закупки"
-          placeholder="Любой"
-          options={PURCHASE_TYPES}
-          selected={selectedPurchaseTypes}
-          onChange={setSelectedPurchaseTypes}
-        />
-
-        {/* Способ проведения закупки — ТЕПЕРЬ КАК ЧИПСЫ */}
-        <ChipsFilter
           label="Способ проведения закупки"
+          placeholder="Любой"
           options={METHODS}
           selected={selectedMethods}
           onChange={setSelectedMethods}
         />
 
-        {/* Признаки */}
+        {/* 5. Признаки закупки */}
         <MultiSelect
           label="Признаки закупки"
           placeholder="Любые"
@@ -127,21 +144,14 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
           onChange={setSelectedFeatures}
         />
 
-        {/* Сортировка суммы */}
-        <div className="field">
-          <span className="field__label">Сортировка суммы</span>
-          <select
-            className="field__input"
-            value={amountSort}
-            onChange={(e) =>
-              setAmountSort(e.target.value as "" | "asc" | "desc")
-            }
-          >
-            <option value="">Не выбрано</option>
-            <option value="asc">По возрастанию</option>
-            <option value="desc">По убыванию</option>
-          </select>
-        </div>
+        {/* 6. Сортировка суммы */}
+        <MultiSelect
+          label="Сортировка суммы"
+          placeholder="Не выбрано"
+          options={["По возрастанию", "По убыванию"]}
+          selected={SORT_LABELS[amountSort]}
+          onChange={handleAmountSortChange}
+        />
 
         {/* Кнопка применить */}
         <button

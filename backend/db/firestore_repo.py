@@ -2,17 +2,12 @@
 from typing import Dict, Optional, List, Tuple
 from google.cloud import firestore
 
-
 class FirestoreTenderRepo:
     def __init__(self, collection_name: str = "tenders"):
         self.db = firestore.Client()
         self.collection = self.db.collection(collection_name)
 
     def get_total_count_from_metadata(self) -> int:
-        """
-        Читает metadata/tenders.total – можно использовать позже,
-        но в текущей схеме мы total считаем как len(выборки <= 500).
-        """
         meta = self.db.collection("metadata").document("tenders").get()
         data = meta.to_dict() or {}
         return data.get("total", 0)
@@ -26,36 +21,42 @@ class FirestoreTenderRepo:
     ) -> Tuple[List[Dict], Optional[str]]:
         """
         Возвращает до `limit` документов по фильтрам.
-        Cursor сейчас не используем (передаём None), но оставляем подпись
-        на будущее (если захотим true cursor-pagination).
+        Cursor пока не используем (передаём None), но параметр оставлен на будущее.
         """
         q = self.collection
 
-        # 🔹 Фильтры – только если список не пустой
-        if filters.get("category") and len(filters["category"]) > 0:
-            q = q.where("Общие_Вид предмета закупок", "in", filters["category"])
+        category_vals = filters.get("category") or []
+        method_vals = filters.get("method") or []
+        purchase_vals = filters.get("purchaseType") or []
+        status_vals = filters.get("status") or []
 
-        if filters.get("method") and len(filters["method"]) > 0:
-            q = q.where("Общие_Способ проведения закупки", "in", filters["method"])
+        # поля с пробелами/знаками — в бэктиках
+        if category_vals:
+            q = q.where("`Общие_Вид предмета закупок`", "in", category_vals)
 
-        if filters.get("purchaseType") and len(filters["purchaseType"]) > 0:
-            q = q.where("Общие_Тип закупки", "in", filters["purchaseType"])
+        if method_vals:
+            q = q.where("`Общие_Способ проведения закупки`", "in", method_vals)
 
-        if filters.get("status") and len(filters["status"]) > 0:
-            q = q.where("Статус", "in", filters["status"])
+        if purchase_vals:
+            q = q.where("`Общие_Тип закупки`", "in", purchase_vals)
 
-        # 🔹 Сортировка
-        if sort_amount:
+        if status_vals:
+            q = q.where("`Статус`", "in", status_vals)
+
+        # сортировка по сумме
+        if sort_amount in ("asc", "desc"):
             direction = (
-                firestore.Query.DESCENDING if sort_amount == "desc"
+                firestore.Query.DESCENDING
+                if sort_amount == "desc"
                 else firestore.Query.ASCENDING
             )
-            q = q.order_by("Сумма, тг.", direction=direction)
+            q = q.order_by("`Сумма, тг.`", direction=direction)
         else:
-            # базовый порядок – по ID (или по дате, если захочешь)
+            # базовый fallback, если сортировку не выбрали
             q = q.order_by("__name__")
 
-        # 🔹 Cursor – пока не используем в новой схеме, но оставляем контракт
+
+        # Cursor на будущее – пока всегда None
         if cursor:
             q = q.start_after({"ID": cursor})
 
