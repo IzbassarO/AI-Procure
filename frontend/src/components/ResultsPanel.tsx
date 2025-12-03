@@ -10,7 +10,7 @@ interface ResultsPanelProps {
   loading: boolean;
   error: string | null;
   onPageChange: (page: number) => void;
-  onAiAnalysis?: (tender: TenderItem) => void; // 🔹 НОВОЕ
+  onAiAnalysis?: (tender: TenderItem) => void;
 }
 
 // Вытаскиваем сумму из строки или объекта { '': '2 920.00' }
