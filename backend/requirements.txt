@@ -1,10 +1,11 @@
 fastapi
 uvicorn[standard]
 pydantic
-motor
 python-dotenv
-pandas
 httpx
+google-cloud-firestore
+google-auth
+
 #pymorphy3
 #sentence_transformers
 #rank_bm25

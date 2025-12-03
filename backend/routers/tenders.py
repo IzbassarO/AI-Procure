@@ -1,27 +1,42 @@
-# backend/routers/tenders.py
+# routers/tenders.py
 from fastapi import APIRouter
-from models.tender import SearchRequest, SearchResponse
-from services.tender_service import search_tenders
-from repositories.tenders_csv import csv_tender_repo
+from pydantic import BaseModel
+from typing import Optional, Dict
 
-router = APIRouter()
+from services.tenders_service import search_tenders_prod
+from db.firestore_repo import FirestoreTenderRepo
 
-@router.post("/search", response_model=SearchResponse)
-async def search_tenders_endpoint(body: SearchRequest):
-    print("🔎 amountSort from client:", body.filters.amountSort if body.filters else None)
+router = APIRouter(prefix="/api/tenders", tags=["tenders"])
 
-    items, total, pages = search_tenders(
-        repo=csv_tender_repo,
-        query=body.query,
-        filters=body.filters,
-        page=body.page,
-        page_size=body.pageSize,
+# создаём отдельный экземпляр репозитория только для debug
+debug_repo = FirestoreTenderRepo()
+
+
+class SearchRequest(BaseModel):
+    query: Optional[str] = None
+    filters: Dict = {}
+    page: int = 1
+    pageSize: int = 15
+    sortAmount: Optional[str] = None
+
+
+@router.post("/search")
+def search(req: SearchRequest):
+    return search_tenders_prod(
+        query=req.query,
+        filters=req.filters,
+        page=req.page,
+        page_size=req.pageSize,
+        sort_amount=req.sortAmount,
     )
 
-    return SearchResponse(
-        items=items,
-        total=total,
-        page=body.page,
-        pageSize=body.pageSize,
-        pages=pages,
-    )
+
+@router.get("/debug/first")
+def debug_first():
+    docs = debug_repo.collection.limit(5).stream()
+    out = []
+    for d in docs:
+        item = d.to_dict()
+        item["__doc_id__"] = d.id
+        out.append(item)
+    return out

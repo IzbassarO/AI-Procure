@@ -1,57 +1,14 @@
 import React, { useState } from "react";
 import "../styles/filters.css";
 
-/** Значения из датасета */
-const SUBJECT_TYPES = ["Работа", "Товар", "Услуга"];
-
-const PURCHASE_TYPES = [
-  "ИОИ от ЗЦП",
-  "ИОИ от ЗЦП не ГЗ",
-  "ИОИ от Конкурс по приобретению товаров, связанных с обеспечением питания воспитанников и обучающихся",
-  "ИОИ от конкурса",
-  "Первая закупка",
-  "Повторная закупка",
-];
-
-const METHODS = [
-  "Аукцион",
-  "Государственные закупки с применением особого порядка",
-  "Закупка жилища",
-  "Закупка по государственному социальному заказу",
-  "Запрос ценовых предложений",
-  "Запрос ценовых предложений (не ГЗ new)",
-  "Из одного источника по несостоявшимся закупкам",
-  "Из одного источника по несостоявшимся закупкам не ГЗ",
-  "Конкурс по приобретению товаров, связанных с обеспечением питания воспитанников и обучающихся",
-  "Конкурс по приобретению услуг по организации питания воспитанников и обучающихся",
-  "Конкурс с использованием рейтингово-балльной системы",
-  "Открытый конкурс",
-  "Тендер",
-  "Тендер с использованием рейтингово-балльной системы",
-];
-
-/** Признаки (из базы) */
-const FEATURES = [
-  "Без учета НДС",
-  "Закупка среди организаций инвалидов",
-  "Работы по проектированию",
-  "Работы, не связанные со строительством",
-  "Строительно-монтажные работы",
-];
-
-/** Категории тендеров – чипсы */
-const TENDER_CATEGORIES = [
-  "Дорожные работы",
-  "Строительство и ремонт",
-  "IT и программное обеспечение",
-  "Медицинские закупки",
-  "Оборудование и техника",
-  "Транспорт и логистика",
-  "Охрана и безопасность",
-  "Консалтинг и услуги",
-  "Продукты и питание",
-  "Прочее",
-];
+import {
+  SUBJECT_TYPES,
+  PURCHASE_TYPES,
+  METHODS,
+  FEATURES,
+} from "./filters/filtersConstants";
+import { MultiSelect } from "./filters/MultiSelect";
+import { ChipsFilter } from "./filters/ChipsFilter";
 
 /** Тип фильтров, которые уйдут в App + бэк */
 export interface UiFilters {
@@ -67,105 +24,8 @@ type FiltersProps = {
   onApply: (filters: UiFilters) => void;
 };
 
-type MultiSelectProps = {
-  label: string;
-  placeholder: string;
-  options: string[];
-  selected: string[];
-  onChange: (values: string[]) => void;
-};
-
-const MultiSelect: React.FC<MultiSelectProps> = ({
-  label,
-  placeholder,
-  options,
-  selected,
-  onChange,
-}) => {
-  const [open, setOpen] = useState(false);
-
-  const toggleOption = (opt: string) => {
-    if (selected.includes(opt)) {
-      onChange(selected.filter((v) => v !== opt));
-    } else {
-      onChange([...selected, opt]);
-    }
-  };
-
-  const handleSelectAll = () => {
-    if (selected.length === options.length) {
-      onChange([]);
-    } else {
-      onChange([...options]);
-    }
-  };
-
-  const selectedLabel =
-    selected.length === 0
-      ? placeholder
-      : selected.length === options.length
-      ? "Выбраны все"
-      : `Выбрано: ${selected.length}`;
-
-  return (
-    <div className="multi-select">
-      <div className="multi-select__label">{label}</div>
-
-      <button
-        type="button"
-        className={
-          "multi-select__control" +
-          (selected.length > 0 ? " multi-select__control--active" : "")
-        }
-        onClick={() => setOpen((prev) => !prev)}
-      >
-        <span className="multi-select__value">{selectedLabel}</span>
-        <span className="multi-select__arrow">{open ? "▲" : "▼"}</span>
-      </button>
-
-      {open && (
-        <div className="multi-select__menu">
-          <div className="multi-select__menu-header">
-            <button
-              type="button"
-              className="multi-select__menu-link"
-              onClick={handleSelectAll}
-            >
-              {selected.length === options.length
-                ? "Снять выделение"
-                : "Выбрать все"}
-            </button>
-
-            <button
-              type="button"
-              className="multi-select__menu-link"
-              onClick={() => setOpen(false)}
-            >
-              Готово
-            </button>
-          </div>
-
-          <div className="multi-select__options">
-            {options.map((opt) => (
-              <label key={opt} className="multi-select__option">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(opt)}
-                  onChange={() => toggleOption(opt)}
-                />
-                <span>{opt}</span>
-              </label>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
 const Filters: React.FC<FiltersProps> = ({ onApply }) => {
   const [keywords, setKeywords] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const [selectedSubjectTypes, setSelectedSubjectTypes] = useState<string[]>(
     []
@@ -173,6 +33,7 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
   const [selectedPurchaseTypes, setSelectedPurchaseTypes] = useState<string[]>(
     []
   );
+  // Теперь методы – это чипсы, а не dropdown
   const [selectedMethods, setSelectedMethods] = useState<string[]>([]);
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
   const [amountSort, setAmountSort] = useState<"" | "asc" | "desc">("");
@@ -188,7 +49,6 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
 
   const handleReset = () => {
     setKeywords("");
-    setSelectedCategories([]);
     setSelectedSubjectTypes([]);
     setSelectedPurchaseTypes([]);
     setSelectedMethods([]);
@@ -207,14 +67,6 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
       features: selectedFeatures,
       amountSort,
     });
-  };
-
-  const toggleCategory = (cat: string) => {
-    if (selectedCategories.includes(cat)) {
-      setSelectedCategories(selectedCategories.filter((c) => c !== cat));
-    } else {
-      setSelectedCategories([...selectedCategories, cat]);
-    }
   };
 
   return (
@@ -240,28 +92,6 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
           />
         </div>
 
-        {/* Категории тендеров (фронтовая категоризация) */}
-        <div className="field">
-          <span className="field__label">Категории тендеров</span>
-          <div className="filter-chips">
-            {TENDER_CATEGORIES.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                className={
-                  "filter-chip" +
-                  (selectedCategories.includes(cat)
-                    ? " filter-chip--active"
-                    : "")
-                }
-                onClick={() => toggleCategory(cat)}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-        </div>
-
         {/* Виды предмета закупок */}
         <MultiSelect
           label="Вид предмета закупок"
@@ -280,10 +110,9 @@ const Filters: React.FC<FiltersProps> = ({ onApply }) => {
           onChange={setSelectedPurchaseTypes}
         />
 
-        {/* Способы закупки */}
-        <MultiSelect
+        {/* Способ проведения закупки — ТЕПЕРЬ КАК ЧИПСЫ */}
+        <ChipsFilter
           label="Способ проведения закупки"
-          placeholder="Любой"
           options={METHODS}
           selected={selectedMethods}
           onChange={setSelectedMethods}

@@ -83,22 +83,27 @@ const App: React.FC = () => {
               effectiveFilters.subjectTypes.length > 0
                 ? effectiveFilters.subjectTypes
                 : null,
+
             // method = Общие_Способ проведения закупки
             method:
               effectiveFilters.methods.length > 0
                 ? effectiveFilters.methods
                 : null,
+
             // purchaseType = Общие_Тип закупки
             purchaseType:
               effectiveFilters.purchaseTypes.length > 0
                 ? effectiveFilters.purchaseTypes
                 : null,
-            // features (кастомное поле, добавим в backend)
+
+            // features
             features:
               effectiveFilters.features.length > 0
                 ? effectiveFilters.features
                 : null,
+
             amountSort: effectiveFilters.amountSort || null,
+            // при желании позже добавим status и dateRange
           },
           page: pageToLoad,
           pageSize: PAGE_SIZE,
