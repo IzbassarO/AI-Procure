@@ -1,8 +1,8 @@
-// src/components/RiskAnalysisModal.tsx
 import React from "react";
 import "../styles/risk.css";
 import type { TenderItem } from "../App";
 import type { TenderRiskResponse } from "../types/risk";
+import RiskSectionCard from "./risk/RiskSectionCard";
 
 interface RiskAnalysisModalProps {
   tender: TenderItem;
@@ -116,132 +116,151 @@ const RiskAnalysisModal: React.FC<RiskAnalysisModalProps> = ({
               </div>
             )}
 
-            {/* ==== SECTIONS ==== */}
-            {a.executive_summary && (
-              <section className="risk-section">
-                <h3>Краткое резюме</h3>
-                <p>{a.executive_summary}</p>
-              </section>
-            )}
-
-            {Array.isArray(a.positive_factors) &&
-              a.positive_factors.length > 0 && (
-                <section className="risk-section">
-                  <h3>Позитивные факторы</h3>
-                  <ul className="risk-list">
-                    {a.positive_factors.map((t, idx) => (
-                      <li key={idx}>{t}</li>
-                    ))}
-                  </ul>
-                </section>
+            {/* ==== GRID: summary + checklist ==== */}
+            <div className="risk-sections-grid">
+              {a.executive_summary && (
+                <RiskSectionCard
+                  title="Краткое резюме"
+                  accent="primary"
+                  variant="soft"
+                >
+                  <p className="risk-text-muted">{a.executive_summary}</p>
+                </RiskSectionCard>
               )}
 
-            {Array.isArray(a.red_flags) && a.red_flags.length > 0 && (
-              <section className="risk-section">
-                <h3>Красные флаги</h3>
-                <ul className="risk-list">
-                  {a.red_flags.map((t, idx) => (
-                    <li key={idx}>{t}</li>
-                  ))}
-                </ul>
-              </section>
-            )}
+              {Array.isArray(a.manager_checklist) &&
+                a.manager_checklist.length > 0 && (
+                  <RiskSectionCard title="Чек-лист для менеджера" variant="soft">
+                    <ul className="risk-list risk-list--compact">
+                      {a.manager_checklist.map((t, idx) => (
+                        <li key={idx}>{t}</li>
+                      ))}
+                    </ul>
+                  </RiskSectionCard>
+                )}
+            </div>
 
-            {Array.isArray(a.recommendations) &&
-              a.recommendations.length > 0 && (
-                <section className="risk-section">
-                  <h3>Рекомендации</h3>
-                  <ul className="risk-list">
-                    {a.recommendations.map((t, idx) => (
-                      <li key={idx}>{t}</li>
-                    ))}
-                  </ul>
-                </section>
-              )}
+            {/* ==== STACK: остальные секции ==== */}
+            <div className="risk-sections-stack">
+              {Array.isArray(a.positive_factors) &&
+                a.positive_factors.length > 0 && (
+                  <RiskSectionCard
+                    title="Позитивные факторы"
+                    variant="soft"
+                    accent="default"
+                  >
+                    <ul className="risk-tag-list">
+                      {a.positive_factors.map((t, idx) => (
+                        <li
+                          key={idx}
+                          className="risk-tag risk-tag--positive"
+                        >
+                          {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </RiskSectionCard>
+                )}
 
-            {Array.isArray(a.key_risks) && a.key_risks.length > 0 && (
-              <section className="risk-section">
-                <h3>Ключевые риски</h3>
-                <ul className="risk-list">
-                  {a.key_risks.map((r, idx) => (
-                    <li key={idx} className="risk-key-item">
-                      <div className="risk-key-item__header">
-                        <span className="risk-key-item__category">
-                          {r.category}
-                        </span>
-                        <span className="risk-key-item__severity">
-                          ({r.severity})
-                        </span>
-                      </div>
-                      <div className="risk-key-item__desc">
-                        {r.description}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            )}
-
-            {Array.isArray(a.banking_products) &&
-              a.banking_products.length > 0 && (
-                <section className="risk-section">
-                  <h3>Банковские продукты</h3>
-                  <ul className="risk-list">
-                    {a.banking_products.map((bp, idx) => (
-                      <li key={idx}>
-                        <div className="risk-product-item__name">
-                          {bp.product}
-                        </div>
-                        {bp.justification && (
-                          <div className="risk-product-item__line">
-                            Обоснование: {bp.justification}
-                          </div>
-                        )}
-                        {bp.conditions && (
-                          <div className="risk-product-item__line">
-                            Условия: {bp.conditions}
-                          </div>
-                        )}
+              {Array.isArray(a.red_flags) && a.red_flags.length > 0 && (
+                <RiskSectionCard
+                  title="Красные флаги"
+                  tone="danger"
+                  variant="soft"
+                >
+                  <ul className="risk-tag-list">
+                    {a.red_flags.map((t, idx) => (
+                      <li key={idx} className="risk-tag risk-tag--danger">
+                        {t}
                       </li>
                     ))}
                   </ul>
-                </section>
+                </RiskSectionCard>
               )}
 
-            {Array.isArray(a.manager_checklist) &&
-              a.manager_checklist.length > 0 && (
-                <section className="risk-section">
-                  <h3>Чек-лист для менеджера</h3>
-                  <ul className="risk-list">
-                    {a.manager_checklist.map((t, idx) => (
-                      <li key={idx}>{t}</li>
+              {Array.isArray(a.recommendations) &&
+                a.recommendations.length > 0 && (
+                  <RiskSectionCard title="Рекомендации">
+                    <ul className="risk-list">
+                      {a.recommendations.map((t, idx) => (
+                        <li key={idx}>{t}</li>
+                      ))}
+                    </ul>
+                  </RiskSectionCard>
+                )}
+
+              {Array.isArray(a.key_risks) && a.key_risks.length > 0 && (
+                <RiskSectionCard title="Ключевые риски">
+                  <ul className="risk-list risk-list--no-bullets">
+                    {a.key_risks.map((r, idx) => (
+                      <li key={idx} className="risk-key-item">
+                        <div className="risk-key-item__header">
+                          <span className="risk-key-item__category">
+                            {r.category}
+                          </span>
+                          <span className="risk-key-item__severity">
+                            ({r.severity})
+                          </span>
+                        </div>
+                        <div className="risk-key-item__desc">
+                          {r.description}
+                        </div>
+                      </li>
                     ))}
                   </ul>
-                </section>
+                </RiskSectionCard>
               )}
 
-            {Array.isArray(a.investment_risks) &&
-              a.investment_risks.length > 0 && (
-                <section className="risk-section">
-                  <h3>Инвестиционные риски</h3>
-                  <ul className="risk-list">
-                    {a.investment_risks.map((t, idx) => (
-                      <li key={idx}>{t}</li>
-                    ))}
-                  </ul>
-                </section>
+              {Array.isArray(a.banking_products) &&
+                a.banking_products.length > 0 && (
+                  <RiskSectionCard title="Банковские продукты">
+                    <ul className="risk-list risk-list--no-bullets">
+                      {a.banking_products.map((bp, idx) => (
+                        <li key={idx} className="risk-product-item">
+                          <div className="risk-product-item__name">
+                            {bp.product}
+                          </div>
+                          {bp.justification && (
+                            <div className="risk-product-item__line">
+                              Обоснование: {bp.justification}
+                            </div>
+                          )}
+                          {bp.conditions && (
+                            <div className="risk-product-item__line">
+                              Условия: {bp.conditions}
+                            </div>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </RiskSectionCard>
+                )}
+
+              {Array.isArray(a.investment_risks) &&
+                a.investment_risks.length > 0 && (
+                  <RiskSectionCard title="Инвестиционные риски" variant="soft">
+                    <ul className="risk-list risk-list--compact">
+                      {a.investment_risks.map((t, idx) => (
+                        <li key={idx}>{t}</li>
+                      ))}
+                    </ul>
+                  </RiskSectionCard>
+                )}
+
+              {a.detailed_analysis && (
+                <RiskSectionCard
+                  title="Детальный анализ"
+                  accent="primary"
+                  variant="soft"
+                >
+                  <p className="risk-detailed-text">
+                    {a.detailed_analysis}
+                  </p>
+                </RiskSectionCard>
               )}
+            </div>
 
-            {a.detailed_analysis && (
-              <section className="risk-section">
-                <h3>Детальный анализ</h3>
-                <p className="risk-detailed-text">
-                  {a.detailed_analysis}
-                </p>
-              </section>
-            )}
-
-            {/* можно оставить JSON в конце, по желанию */}
+            {/* RAW JSON */}
             <section className="risk-section risk-section--raw-json">
               <details>
                 <summary>Показать сырой JSON ответа</summary>

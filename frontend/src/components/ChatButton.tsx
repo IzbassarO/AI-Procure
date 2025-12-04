@@ -1,5 +1,8 @@
 import React, { useState, useRef } from "react";
 import "../styles/chatButton.css";
+import homeIcon from "../assets/home.png";
+import envelopeIcon from "../assets/envelope.png";
+import contactsIcon from "../assets/contacts.png";
 
 type MessageRole = "user" | "bot";
 
@@ -23,8 +26,7 @@ const FAQ_FULL = [
   "Как отфильтровать только рисковые тендеры?",
 ];
 
-const BOT_STUB_TEXT =
-  "Это тестовый ответ ассистента. Позже здесь будет реальный анализ тендера по вашему вопросу.";
+const CHATBOT_ENDPOINT = import.meta.env.VITE_CHATBOT_ENDPOINT;
 
 const ChatButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -43,20 +45,63 @@ const ChatButton: React.FC = () => {
     setIsOpen((prev) => !prev);
   };
 
-  const handleStartConversation = (question: string) => {
+  const callChatbot = async (question: string): Promise<string> => {
+    const payload = {
+      message: question,
+      conversation_history: [],
+      temperature: 0.7,
+      max_tokens: 200,
+    };
+
+    const res = await fetch(CHATBOT_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+
+    const data = await res.json();
+    // по твоему curl ответ лежит в поле "response"
+    return typeof data.response === "string"
+      ? data.response
+      : "Ассистент вернул пустой ответ.";
+  };
+
+  // старт из FAQ-кнопки
+  const handleStartConversation = async (question: string) => {
     const firstMsg: Message = {
       id: nextId(),
       role: "user",
       text: question,
     };
-    const botReply: Message = {
-      id: nextId(),
-      role: "bot",
-      text: BOT_STUB_TEXT,
-    };
-    setMessages([firstMsg, botReply]);
+    setMessages([firstMsg]);
     setInChatMode(true);
     setActiveTab("home");
+    setIsTyping(true);
+
+    try {
+      const answerText = await callChatbot(question);
+      const botReply: Message = {
+        id: nextId(),
+        role: "bot",
+        text: answerText,
+      };
+      setMessages((prev) => [...prev, botReply]);
+    } catch (e) {
+      const errMsg: Message = {
+        id: nextId(),
+        role: "bot",
+        text: "Не удалось получить ответ от ассистента. Попробуйте ещё раз.",
+      };
+      setMessages((prev) => [...prev, errMsg]);
+    } finally {
+      setIsTyping(false);
+    }
   };
 
   const sendMessage = async () => {
@@ -75,13 +120,7 @@ const ChatButton: React.FC = () => {
     setIsTyping(true);
 
     try {
-      // TODO: здесь подключишь реальный вызов Groq / LLM
-      // пример:
-      // const res = await fetch("https://your-llm-endpoint", {...});
-      // const data = await res.json();
-      // const answerText = data.answer;
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      const answerText = BOT_STUB_TEXT;
+      const answerText = await callChatbot(trimmed);
 
       const botMsg: Message = {
         id: nextId(),
@@ -143,7 +182,11 @@ const ChatButton: React.FC = () => {
             type="button"
             className="chat-launcher__main"
             onClick={handleToggleOpen}
-            aria-label={isOpen ? "Закрыть чат-бота @AI-Procure_BizAI" : "Открыть чат-бота"}
+            aria-label={
+              isOpen
+                ? "Закрыть чат-бота @AI-Procure_BizAI"
+                : "Открыть чат-бота"
+            }
           >
             {isOpen ? "✕" : "🎧"}
           </button>
@@ -246,17 +289,11 @@ const ChatButton: React.FC = () => {
               <div className="chat-section">
                 <h3 className="chat-section__title">Обращения</h3>
                 <div className="chat-faq__list">
-                  <button
-                    type="button"
-                    className="chat-faq__item"
-                  >
+                  <button type="button" className="chat-faq__item">
                     <span>Форма обратной связи AI-Procure</span>
                     <span className="chat-faq__icon">📝</span>
                   </button>
-                  <button
-                    type="button"
-                    className="chat-faq__item"
-                  >
+                  <button type="button" className="chat-faq__item">
                     <span>Проверка статуса заявки</span>
                     <span className="chat-faq__icon">🔍</span>
                   </button>
@@ -330,34 +367,31 @@ const ChatButton: React.FC = () => {
             <button
               type="button"
               className={
-                "chat-tab" +
-                (activeTab === "home" ? " chat-tab--active" : "")
+                "chat-tab" + (activeTab === "home" ? " chat-tab--active" : "")
               }
               onClick={() => setActiveTab("home")}
             >
-              <span className="chat-tab__icon">🏠</span>
+              <img src={homeIcon} alt="home" className="chat-tab__icon-img" />
               <span className="chat-tab__label">ГЛАВНАЯ</span>
             </button>
             <button
               type="button"
               className={
-                "chat-tab" +
-                (activeTab === "tickets" ? " chat-tab--active" : "")
+                "chat-tab" + (activeTab === "tickets" ? " chat-tab--active" : "")
               }
               onClick={() => setActiveTab("tickets")}
             >
-              <span className="chat-tab__icon">🧾</span>
+              <img src={envelopeIcon} alt="tickets" className="chat-tab__icon-img" />
               <span className="chat-tab__label">ОБРАЩЕНИЯ</span>
             </button>
             <button
               type="button"
               className={
-                "chat-tab" +
-                (activeTab === "contacts" ? " chat-tab--active" : "")
+                "chat-tab" + (activeTab === "contacts" ? " chat-tab--active" : "")
               }
               onClick={() => setActiveTab("contacts")}
             >
-              <span className="chat-tab__icon">≡</span>
+              <img src={contactsIcon} alt="contacts" className="chat-tab__icon-img" />
               <span className="chat-tab__label">КОНТАКТЫ</span>
             </button>
           </div>

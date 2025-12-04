@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers.tenders import router as tenders_router
 from routers.risk import router as risk_router
+from routers import tenders, risk, chat
 
 import asyncio
 from services.scheduler import start_tenders_scheduler
