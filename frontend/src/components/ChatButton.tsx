@@ -34,7 +34,7 @@ const ChatButton: React.FC = () => {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
 
-  const [inChatMode, setInChatMode] = useState(false); // false = FAQ, true = чат
+  const [inChatMode, setInChatMode] = useState(false);
   const msgIdRef = useRef(1);
 
   const nextId = () => msgIdRef.current++;
@@ -80,7 +80,7 @@ const ChatButton: React.FC = () => {
       // const res = await fetch("https://your-llm-endpoint", {...});
       // const data = await res.json();
       // const answerText = data.answer;
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // фейковая задержка
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       const answerText = BOT_STUB_TEXT;
 
       const botMsg: Message = {

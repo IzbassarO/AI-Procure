@@ -13,18 +13,13 @@ interface ResultsPanelProps {
   onAiAnalysis?: (tender: TenderItem) => void;
 }
 
-// Вытаскиваем сумму из строки или объекта { '': '2 920.00' }
-// Вытаскиваем сумму из строки или объекта { '': '2 920.00' }.
-// При этом не завязаны жёстко на точное имя колонки – ищем по слову "Сумма".
 function extractAmount(row: TenderItem): string {
-  // Пытаемся взять по явным ключам
   let raw: any =
     row["Сумма, тг"] ??
     row["Сумма, тг "] ??
     row["Сумма"] ??
     null;
 
-  // Если не нашли — ищем любой ключ, где есть "Сумма"
   if (!raw) {
     const key = Object.keys(row).find((k) => k.includes("Сумма"));
     if (key) {
@@ -34,12 +29,10 @@ function extractAmount(row: TenderItem): string {
 
   if (!raw) return "-";
 
-  // Если это просто строка — возвращаем как есть
   if (typeof raw === "string") {
     return raw;
   }
 
-  // Если это объект, типа { '': '2 920.00' } — берём первое значение
   if (typeof raw === "object") {
     const values = Object.values(raw);
     if (values.length > 0) {
@@ -47,11 +40,9 @@ function extractAmount(row: TenderItem): string {
     }
   }
 
-  // На всякий случай fallback
   return "-";
 }
 
-// Парсим дедлайн, считаем дни и форматируем
 function getDeadlineInfo(row: TenderItem) {
   const rawDeadline =
     row["Детали_Срок окончания приема"] ?? row["Окончание приема заявок"];
@@ -104,7 +95,7 @@ const ResultsPanel: React.FC<ResultsPanelProps> = ({
   onAiAnalysis,
 }) => {
   const buildPagination = (): (number | "dots")[] => {
-    const visibleCount = 5; // сколько видно вокруг активной страницы
+    const visibleCount = 15;
     const pagesArray: (number | "dots")[] = [];
 
     if (pages <= 7) {

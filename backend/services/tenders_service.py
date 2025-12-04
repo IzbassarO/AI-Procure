@@ -6,7 +6,7 @@ from db.firestore_repo import FirestoreTenderRepo
 
 repo = FirestoreTenderRepo()
 
-MAX_FETCH = 5
+MAX_FETCH = 0
 _SEARCH_CACHE: Dict[str, List[Dict[str, Any]]] = {}
 
 def _make_cache_key(
