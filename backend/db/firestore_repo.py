@@ -1,6 +1,8 @@
-# db/firestore_repo.py
 from typing import Dict, Optional, List, Tuple
 from google.cloud import firestore
+import logging
+
+logger = logging.getLogger(__name__)
 
 class FirestoreTenderRepo:
     def __init__(self, collection_name: str = "tenders"):
@@ -19,10 +21,6 @@ class FirestoreTenderRepo:
         cursor: Optional[str],
         sort_amount: Optional[str],
     ) -> Tuple[List[Dict], Optional[str]]:
-        """
-        Возвращает до `limit` документов по фильтрам.
-        Cursor пока не используем (передаём None), но параметр оставлен на будущее.
-        """
         q = self.collection
 
         category_vals = filters.get("category") or []
@@ -30,7 +28,6 @@ class FirestoreTenderRepo:
         purchase_vals = filters.get("purchaseType") or []
         status_vals = filters.get("status") or []
 
-        # поля с пробелами/знаками — в бэктиках
         if category_vals:
             q = q.where("`Общие_Вид предмета закупок`", "in", category_vals)
 
@@ -43,7 +40,6 @@ class FirestoreTenderRepo:
         if status_vals:
             q = q.where("`Статус`", "in", status_vals)
 
-        # сортировка по сумме
         if sort_amount in ("asc", "desc"):
             direction = (
                 firestore.Query.DESCENDING
@@ -52,11 +48,8 @@ class FirestoreTenderRepo:
             )
             q = q.order_by("`Сумма, тг.`", direction=direction)
         else:
-            # базовый fallback, если сортировку не выбрали
             q = q.order_by("__name__")
 
-
-        # Cursor на будущее – пока всегда None
         if cursor:
             q = q.start_after({"ID": cursor})
 
@@ -72,3 +65,43 @@ class FirestoreTenderRepo:
             last_cursor = d.id
 
         return items, last_cursor
+    
+    def upsert_many_if_new(self, items: List[Dict], dry_run: bool = False) -> int:
+        batch = self.db.batch()
+        new_count = 0
+        for item in items:
+            tender_id = str(item.get("ID") or "").strip()
+            if not tender_id:
+                continue
+            if dry_run:
+                logger.debug(f"[DRY_RUN] Проверка наличия тендера ID={tender_id} в Firestore")
+                is_new = True
+            else:
+                doc_ref = self.collection.document(tender_id)
+                doc = doc_ref.get()
+                is_new = not doc.exists
+
+            if not is_new:
+                continue
+            item["ID"] = tender_id
+
+            if dry_run:
+                logger.info(f"[DRY_RUN] Добавили бы НОВЫЙ тендер ID={tender_id}")
+            else:
+                batch.set(self.collection.document(tender_id), item)
+
+            new_count += 1
+
+        if new_count > 0 and not dry_run:
+            batch.commit()
+
+            meta_ref = self.db.collection("metadata").document("tenders")
+            meta_ref.set({"total": firestore.Increment(new_count)}, merge=True)
+
+        logger.info(
+            "[upsert_many_if_new] %s режим. Новых тендеров: %d",
+            "DRY_RUN" if dry_run else "REAL",
+            new_count,
+        )
+
+        return new_count

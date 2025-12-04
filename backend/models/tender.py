@@ -1,4 +1,3 @@
-# backend/models/tender.py
 from pydantic import BaseModel
 from typing import Optional, Dict, Any, List
 from models.filters import TenderFilters

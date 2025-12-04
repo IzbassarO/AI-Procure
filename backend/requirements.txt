@@ -6,6 +6,12 @@ httpx
 google-cloud-firestore
 google-auth
 
+aiohttp
+requests
+beautifulsoup4
+pandas
+nest_asyncio
+
 #pymorphy3
 #sentence_transformers
 #rank_bm25
